@@ -1,49 +1,113 @@
-let textInput = document.getElementById('texto-tarefa');
-let buton = document.getElementById('criar-tarefa');
-let lista = document.getElementById('lista-tarefas');
-const clickList = document.getElementsByClassName('liStyle');
-const btnApaga = document.getElementById('apaga-tudo');
-const btnFinalizados = document.getElementById('remover-finalizados');
+const taskList = document.getElementById('lista-tarefas');
+const taskText = document.getElementById('texto-tarefa');
+const btnCriarTarefa = document.getElementById('criar-tarefa');
+const btnClearTaskList = document.getElementById('apaga-tudo');
+const btnRemoveFinished = document.getElementById('remover-finalizados');
+const btnSaveTaskList = document.getElementById('salvar-tarefas');
+const btnMoveUp = document.getElementById('mover-cima');
+const btnMoveDown = document.getElementById('mover-baixo');
+const btnRemoveSelect = document.getElementById('remover-selecionado');
 
-
-// Vai adicionando item a lista a cada click
-buton.addEventListener('click', function(){  
-  let novaLista = document.createElement('li');
-  novaLista.classList.add('liStyle');
-  lista.appendChild(novaLista).innerText = textInput.value;
-  textInput.value = '';  
-  mudarCor();  
-  complet();
-});
-
-// Muda a cor do fundo para cinza
-function mudarCor() {
-  for (let i = 0; i <  clickList.length; i++) {
-    clickList[i].addEventListener('click', function() {
-      for (let j = 0; j < clickList.length + 1; j++) {
-        if(clickList[j]){
-          clickList[j].classList.remove('color');
-        }
-        event.target.classList.add('color');   
-      }
-    });
+const checkBackgroundColor = () => {
+  const li = document.querySelector('.colorGray');
+  if (li) {
+    li.classList.remove('colorGray');
   }
-}
-function complet() {
-  lista.addEventListener('dblclick', function(event) {
-    event.target.classList.toggle('completed');
-  });  
-}
-complet();
+};
 
-btnApaga.addEventListener('click', function() {
-    lista.innerHTML = '';
-});
+const taskCompleted = (event) => {
+  event.target.classList.toggle('completed');
+};
 
-
-btnFinalizados.addEventListener('click', function(){
-  let finalizados = document.querySelectorAll('li.completed');
-  for(let i =0; i < finalizados.length; i++) {
-    lista.removeChild(finalizados[i]);
+const selectTask = (event) => {
+  const liSelect = event.target;
+  if (liSelect.classList.contains('colorGray')) {
+    liSelect.classList.remove('colorGray');
+  } else {
+    checkBackgroundColor();
+    liSelect.classList.add('colorGray');
   }
-});
+};
+
+const createList = () => {
+  const creatLi = document.createElement('li');
+
+  creatLi.className = '';
+  creatLi.innerText = taskText.value;
+  taskText.value = '';
+
+  taskList.appendChild(creatLi);
+
+  creatLi.addEventListener('dblclick', taskCompleted);
+  creatLi.addEventListener('click', selectTask);
+  taskText.focus();
+};
+
+const clearTaskList = () => {
+  taskList.innerHTML = '';
+};
+
+const removeFinished = () => {
+  const completeds = document.querySelectorAll('.completed');
+  completeds.forEach((completed) => completed.parentNode.removeChild(completed));
+};
+
+const saveTaskList = () => {
+  const getOl = document.querySelector('#lista-tarefas').innerHTML;
+  localStorage.setItem('taskList', getOl);
+};
+
+const restoreTaskList = () => {
+  const getItemsLocalStorage = localStorage.getItem('taskList');
+  const getOl = document.querySelector('#lista-tarefas');
+  getOl.innerHTML = getItemsLocalStorage;
+  const addEventAgainLi = document.querySelectorAll('li');
+  addEventAgainLi.forEach((li) => {
+    li.addEventListener('dblclick', taskCompleted);
+    li.addEventListener('click', selectTask);
+  });
+};
+
+const moveUp = () => {
+  const li = document.querySelectorAll('li');
+  li.forEach((liSelect, index) => {
+    const liBefore = li[index - 1];
+    if (liSelect.classList.contains('colorGray') && liBefore) {
+      liSelect.parentElement.insertBefore(liBefore, liSelect.nextSibling);
+    }
+  });
+};
+
+const moveDown = () => {
+  const li = document.querySelectorAll('li');
+  li.forEach((liSelect, index) => {
+    const liAfter = li[index + 1];
+    if (liSelect.classList.contains('colorGray') && liAfter) {
+      liSelect.parentElement.insertBefore(liSelect, liAfter.nextElementSibling);
+    }
+  });
+};
+
+const removeSelect = () => {
+  const select = document.querySelector('.colorGray');
+  if (select) {
+    select.remove();
+  }
+};
+
+btnCriarTarefa.addEventListener('click', createList);
+
+btnClearTaskList.addEventListener('click', clearTaskList);
+
+btnRemoveFinished.addEventListener('click', removeFinished);
+
+btnSaveTaskList.addEventListener('click', saveTaskList);
+
+btnMoveUp.addEventListener('click', moveUp);
+btnMoveDown.addEventListener('click', moveDown);
+
+btnRemoveSelect.addEventListener('click', removeSelect);
+
+window.onload = () => {
+  restoreTaskList();
+};
