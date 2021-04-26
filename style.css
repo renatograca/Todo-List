@@ -1,4 +1,11 @@
+* {
+  font-family: 'Nunito', sans-serif;
+  font-size: large;
+  font-weight: bold;
+}
+
 h1 {
+  font-family: 'Nunito', sans-serif;
   color: white;
 }
 
@@ -32,4 +39,8 @@ h1 {
 
 #lista-tarefas {
   width: 50%;
+}
+footer {
+  padding-top: 50px;
+  padding-bottom: 20px;
 }
